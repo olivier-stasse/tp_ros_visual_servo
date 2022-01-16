@@ -24,28 +24,30 @@ class ImageConverter
   int iLowH_,iHighH_;
   int iLowS_,iHighS_;
   int iLowV_,iHighV_;
-  
+
 public:
   ImageConverter()
-    : it_(nh_),iLowH_(15), iHighH_(83),
+    : it_(),iLowH_(15), iHighH_(83),
       iLowS_(190), iHighS_(226),
       iLowV_(0), iHighV_(255)
   {
-    // Creates Node and subscribe to input video feed 
-    /* 
+    // Creates Node and subscribe to input video feed
+    /*
      A COMPLETER
     */
+    // Window to show the image
     cv::namedWindow(OPENCV_WINDOW);
+    // Window named "Control" to display sliders
+    cv::namedWindow("Control", WINDOW_AUTOSIZE);
 
+    // Create trackbars in "Control" window
+    cv::createTrackbar("LowH", "Control", &iLowH_, 179); //Hue (0 - 179)
+    cv::createTrackbar("HighH", "Control", &iHighH_, 179);
 
-    //Create trackbars in "Control" window
-    cvCreateTrackbar("LowH", "Control", &iLowH_, 179); //Hue (0 - 179)
-    cvCreateTrackbar("HighH", "Control", &iHighH_, 179);
-    
-    cvCreateTrackbar("LowS", "Control", &iLowS_, 255); //Saturation (0 - 255)
-    cvCreateTrackbar("HighS", "Control", &iHighS_, 255);
-    cvCreateTrackbar("LowV", "Control", &iLowV_, 255); //Value (0 - 255)
-    cvCreateTrackbar("HighV", "Control", &iHighV_, 255);
+    cv::createTrackbar("LowS", "Control", &iLowS_, 255); //Saturation (0 - 255)
+    cv::createTrackbar("HighS", "Control", &iHighS_, 255);
+    cv::createTrackbar("LowV", "Control", &iLowV_, 255); //Value (0 - 255)
+    cv::createTrackbar("HighV", "Control", &iHighV_, 255);
 
     // Create publisher to send to control
     /* A COMPLETER */
@@ -75,7 +77,7 @@ public:
     Mat imgThresholded;
     inRange(imgHSV, Scalar(iLowH_, iLowS_, iLowV_),
 	    Scalar(iHighH_, iHighS_, iHighV_), imgThresholded); //Threshold the image
-    
+
     imshow("Thresholded Image", imgThresholded); //show the thresholded image
     double cx=0.0,cy=0.0;
     unsigned int nb_pts=0,idx=0;
@@ -109,25 +111,8 @@ public:
 
 int main( int argc, char** argv )
 {
-  
-  namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
-
-
-  Mat imgOriginal;
-  bool bSuccess;
-
   /* Node initialization */
   /* A COMPLETER */
   ImageConverter ic;
   ros::spin();
-  
-  do 
-    {
-      ros::spin();
-
-      usleep(30000);
-    } while(waitKey(30)==27);
-
-  return 0;
-
 }
