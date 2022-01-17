@@ -191,10 +191,11 @@ public:
   void imageCb(const sensor_msgs::ImageConstPtr& imgMsg)
   {
 
-    // Update each parameters by iterating over list_params.
+    // 1 - Update each parameters by iterating over list_params.
     for ( auto it = list_params.begin(); it != list_params.end(); ++it )
       nh_.getParam(std::get<0>(it->second),std::get<1>(it->second));
 
+    // 2- Image processing
     // Convert sensors_msg::Image to opencv image
     cv_bridge::CvImagePtr cv_ptr;
     // Result image
@@ -204,6 +205,7 @@ public:
     // Compute the Center-of-Gravity.
     computeCoG(imgThresholded);
 
+    // 3 - Compute Control for base
     // Creating the ros message to be send for the robot's base.
     geometry_msgs::Twist cmd_vel_msg;
     // Linear part of the cmd
@@ -220,12 +222,13 @@ public:
     if (nb_pts_>0)
       cmd_vel_msg.angular.z = computeCmdZ(cx_-(double)imgThresholded.cols/2.0);
 
+    // 4 - Send Control value to base
     // Publish Twist msg on topic.
     cmd_vel_pub_.publish(cmd_vel_msg);
 
     displayImages(cv_ptr, imgThresholded);
 
-    // Control filling
+    // 5 - Opencv update
     cv::waitKey(3);
   }
 };
